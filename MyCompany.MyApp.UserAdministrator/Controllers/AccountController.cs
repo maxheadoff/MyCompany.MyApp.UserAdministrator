@@ -28,7 +28,7 @@ namespace MyCompany.MyApp.UserAdministrator.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost("/token")]
+        [HttpPost("/api/token")]
         public  async Task<ActionResult> Token(string username, string password)
         {
             byte[] buffer=new byte[Request.ContentLength.Value];

@@ -34,7 +34,7 @@ namespace MyCompany.MyApp.UserAdministrator
         {
             // setup jwt Authentication
             services.AddCustomJwtBearer();
-
+            services.AddCors();
             services.AddDbContext<UserContext>(
                 opt => opt.UseSqlServer(_configuration.GetConnectionString("DefaultConnectionString")));
             services.AddControllers();
@@ -53,6 +53,7 @@ namespace MyCompany.MyApp.UserAdministrator
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseRouting();
+            app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
