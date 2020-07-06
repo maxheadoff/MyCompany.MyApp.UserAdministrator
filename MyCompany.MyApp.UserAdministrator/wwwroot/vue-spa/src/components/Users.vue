@@ -1,28 +1,33 @@
 <template>
   <div class="users" v-if="users">
-    User list
-    <div v-for="user in users" class="User__View">
-        <h1 class="User__Name">{{ user.name }}</h1>
-        {{ user.login }}{{ user.id }}
-        <input type="button" value="Delete" />
-        <input type="button" value="Edit" />
-    </div>
+    <input class="new_button" type="button" value="Create new user" v-on:click="create_user" />
+    <user-com
+              v-for="user in users"
+              class="User__View"
+              v-bind:user_id=user.id
+              v-on:user_deleted="user_deleted">
+    </user-com>
   </div>
 </template>
 
 <script>
   import axios from 'axios'
+  import user from './User.vue'
   export default {
-    name: 'app',
+    name: 'users',
+    components: {
+      'user-com': user
+    },
     data() {
       return {
         users: null,
-        endpoint: 'https://localhost:44378/api/users/'
+        endpoint: 'https://localhost:44378/api/users/',
+        JWTToken: null
       }
     },
     methods: {
       getAllUsers() {
-        axios.get(this.endpoint)
+        axios.get(this.endpoint, { headers: { "Authorization": `Bearer ${this.JWTToken}`}})
           .then(response => {
             this.users = response.data;
           })
@@ -30,18 +35,35 @@
             console.log('---error:' + error);
             console.log(error);
           })
+      },
+      create_user: function () {
+        var new_user = {
+          name: 'new_user', login: 'new_user', id: 0 
+        }
+        this.users.push(new_user);
+      },
+      user_deleted: function (id) {
+        this.users = this.users.filter(item => item.id !== id);
       }
     },
     created() {
+      this.JWTToken = $cookies.get('user-token');
       this.getAllUsers();
     }
   }
 </script>
 <style>
   .users{
-    float: left;
+   float:none;
   }
   .User__View{
-    float:top;
+    float:none;
+  }
+  .new_button{
+      color:darkred;
+      font-weight:bold;
+      border:groove;
+      margin-bottom:10px;
+      padding:6px;
   }
 </style>

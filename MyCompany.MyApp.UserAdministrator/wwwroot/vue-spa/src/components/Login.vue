@@ -1,6 +1,7 @@
+
 <template>
   <div>
-    <form class="login" @submit.prevent="login" v-bind:style="[formStyle]" >
+    <form  @submit.prevent="login" v-bind:class="{active: !AuthState ,hidden:AuthState }"  >
       <h1>Sign in</h1>
       <label>User name</label>
       <input required v-model="username" type="text" placeholder="Snoopy" />
@@ -9,7 +10,10 @@
       <hr />
       <button type="submit">Login</button>
     </form>
-    <input type="button" v-on:click="logout"  v-bind:style="[outStyle]" value="logout" />
+    <div v-bind:class="{active: AuthState ,hidden:!AuthState }">
+      <p>Hello,{{username}}</p>
+      <input type="button" v-on:click="logout"  value="logout" />
+    </div>
   </div>
 </template>
 
@@ -21,25 +25,18 @@
    
     data() {
       return {
-        isAuthenticated: 'false',
+        AuthState: false,
         username: null,
         password: null,
         endpoint: 'https://localhost:44378/api/token'
       }
     },
     computed: {
-      formStyle: function () {
-        if (this.isAuthenticated == 'true')
-          return { 'visibility': 'hidden' }
-        else
-          return { 'visibility': 'visible' }
+      isAuthenticated: function () {
+        if (this.username == null)
+          console.log('no user');
+        return $cookies.get('isAuthenticated') == 'true';
       },
-      outStyle: function () {
-        if (this.isAuthenticated == 'true')
-          return { 'visibility': 'visible' }
-        else
-          return { 'visibility': 'hidden' }
-      }
     },
     methods: {
       login: function () {
@@ -55,28 +52,42 @@
             $cookies.set('user-login', user);
             $cookies.set('isAuthenticated', true);
             console.log('user:' + user + ' logged');
+            this.AuthState = $cookies.get('isAuthenticated') == 'true';
           })
           .catch(err => {
             console.log(err);
             $cookies.remove('user-token'); // if the request fails, remove any possible user token if possible
             $cookies.remove('user-login');
             $cookies.set('isAuthenticated', false);
+            this.AuthState = $cookies.get('isAuthenticated') == 'true';
           })
-        this.isAuthenticated = $cookies.get('isAuthenticated');
-        this.$forceUpdate();
-        router.push('/');
+        
+        //this.$forceUpdate();
       },
       logout: function () {
         console.log('logout');
         $cookies.remove('user-token'); // if the request fails, remove any possible user token if possible
         $cookies.remove('user-login');
         $cookies.set('isAuthenticated', false);
-        this.isAuthenticated = $cookies.get('isAuthenticated');
+        this.AuthState = $cookies.get('isAuthenticated') == 'true';
         this.$forceUpdate();
       }
     },
     created() {
-      this.isAuthenticated = $cookies.get('isAuthenticated');
+      this.AuthState = $cookies.get('isAuthenticated')=='true';
     }
   }
 </script>
+<style>
+  .active {
+    visibility: visible;
+    color: red;
+  }
+
+  .hidden {
+    visibility: hidden;
+  }
+  .login{
+    color:green;
+  }
+</style>

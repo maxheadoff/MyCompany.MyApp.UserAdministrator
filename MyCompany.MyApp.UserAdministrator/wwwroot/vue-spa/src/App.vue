@@ -23,7 +23,6 @@
 </template>
 
 <script>
-  import axios from 'axios'
   export default {
   name: 'app',
   data () {
@@ -31,21 +30,6 @@
       users: null,
       endpoint:'https://localhost:44378/api/users/'
     }
-    },
-    methods: {
-      getAllUsers() {
-        axios.get(this.endpoint)
-          .then(response => {
-            this.users = response.data;
-          })
-          .catch(error => {
-            console.log('---error:' + error);
-            console.log(error);
-          })
-      }
-    },
-    created() {
-      this.getAllUsers();
     }
 }
 </script>

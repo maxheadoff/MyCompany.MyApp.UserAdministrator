@@ -30,6 +30,7 @@ namespace MyCompany.MyApp.UserAdministrator.Controllers
 
         // GET: api/<controller>
         [HttpGet]
+        [Authorize()]
         public async Task<ActionResult<IEnumerable<UserReadDto>>> Get()
         {
             _logger.LogTrace("get users");
@@ -38,6 +39,7 @@ namespace MyCompany.MyApp.UserAdministrator.Controllers
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
+        [Authorize()]
         public async Task<ActionResult<UserReadDto>> GetById(int id)
         {
             var user = await _repo.GetUserById(id);
@@ -70,9 +72,9 @@ namespace MyCompany.MyApp.UserAdministrator.Controllers
         }
 
         // DELETE api/<controller>/5
-        [Authorize(Roles="Admin")]
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Delete(int id) 
         {
             var model = await _repo.GetUserById(id);
             if (model == null)

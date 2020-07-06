@@ -31,14 +31,14 @@ namespace MyCompany.MyApp.UserAdministrator.Controllers
         [HttpPost("/api/token")]
         public  async Task<ActionResult> Token(string username, string password)
         {
-            byte[] buffer=new byte[Request.ContentLength.Value];
+ /*           byte[] buffer=new byte[Request.ContentLength.Value];
             var bodyLength= await Request.Body.ReadAsync(buffer,0,Convert.ToInt32(Request.ContentLength.Value));
             if (bodyLength > 0)
             {
                 var body = Encoding.UTF8.GetString(buffer);
                 _logger.LogInformation(body);
             }
-
+            */
             
             var identity = await GetIdentity(username, password);
             if (identity == null)

@@ -40,6 +40,7 @@ namespace MyCompany.MyApp.UserAdministrator
             services.AddControllers();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddScoped<IUserRepo, UserRepo>();
+            services.AddScoped<IRoleRepo, RoleRepo>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
