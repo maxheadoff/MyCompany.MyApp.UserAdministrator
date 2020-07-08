@@ -1,10 +1,12 @@
 <template>
   <div class="users" v-if="users">
-    <input class="new_button" type="button" value="Create new user" v-on:click="create_user" />
-    <user-com
+    <input class="new_button" type="button" value="" v-on:click="create_user" />
+    <user-com :id="user.id"
+              :key="user.id"
               v-for="user in users"
               class="User__View"
               v-bind:user_id=user.id
+              v-on:refresh="refresh"
               v-on:user_deleted="user_deleted">
     </user-com>
   </div>
@@ -20,7 +22,7 @@
     },
     data() {
       return {
-        users: null,
+        users: [],
         endpoint: 'https://localhost:44378/api/users/',
         JWTToken: null
       }
@@ -30,6 +32,8 @@
         axios.get(this.endpoint, { headers: { "Authorization": `Bearer ${this.JWTToken}`}})
           .then(response => {
             this.users = response.data;
+            console.log('userlist received,count:' + this.users.length);
+            this.$forceUpdate();
           })
           .catch(error => {
             console.log('---error:' + error);
@@ -42,8 +46,13 @@
         }
         this.users.push(new_user);
       },
+      refresh: function (id) {
+        this.getAllUsers();
+      },
       user_deleted: function (id) {
-        this.users = this.users.filter(item => item.id !== id);
+        var index = this.users.findIndex(item => item.id == id);
+        this.$delete(this.users, index);
+        //this.$forceUpdate();
       }
     },
     created() {
@@ -53,17 +62,32 @@
   }
 </script>
 <style>
-  .users{
-   float:none;
+  .users {
+    float: none;
   }
-  .User__View{
-    float:none;
+  .User__View {
+    float: none;
+    margin-bottom: 4px;
+    
   }
-  .new_button{
-      color:darkred;
-      font-weight:bold;
-      border:groove;
-      margin-bottom:10px;
-      padding:6px;
+    .User__View:hover {
+      border: groove;
+      margin: 6px;
+    }
+  .new_button {
+    background-image: url(../assets/add.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: antiquewhite;
+    background-size: contain;
+    border:2px solid;
+    border-color:brown;
+    border-radius:18px;
+    cursor: pointer; /* make the cursor like hovering over an <a> element */
+    vertical-align: middle;
+    width: 100px;
+    height: 60px;
+    margin: 8px;
   }
+   
 </style>

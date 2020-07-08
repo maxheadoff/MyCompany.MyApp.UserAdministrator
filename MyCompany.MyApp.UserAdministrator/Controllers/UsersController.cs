@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MyCompany.MyApp.UserAdministrator.Dtos;
@@ -14,6 +12,10 @@ using MyCompany.MyApp.UserAdministrator.Repository;
 
 namespace MyCompany.MyApp.UserAdministrator.Controllers
 {
+    
+    /// <summary>
+    /// operate user and it's  roles
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
@@ -51,6 +53,7 @@ namespace MyCompany.MyApp.UserAdministrator.Controllers
 
         // POST api/<controller>
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<UserReadDto>> Post([FromBody]UserCreateDto dto)
         {
             var model = _mapper.Map<User>(dto);
@@ -61,6 +64,7 @@ namespace MyCompany.MyApp.UserAdministrator.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> Put(int id, UserUpdateDto dto)
         {
             var model = await _repo.GetUserById(id);
@@ -73,40 +77,52 @@ namespace MyCompany.MyApp.UserAdministrator.Controllers
         }
 
         // PUT api/<controller>/5
+        /// <summary>
+        /// update list of roles for user
+        /// </summary>
+        /// <param name="id">user id</param>
+        /// <param name="dto">array of role id to match to user</param>
+        /// <returns></returns>
         [HttpPut("{id}/Roles")]
+        [Authorize(Roles ="Admin")]
         public async Task<ActionResult> PutRoles(int id, ICollection<int> dto)
         {
             try
             {
+                var model = await _repo.GetUserById(id);
+                if (model == null)
+                    return NotFound();
+                var removeList = from exists in model.Roles
+                                 join requested in dto on exists.RoleId equals requested into med
+                                 from aaa in med.DefaultIfEmpty()
+                                 select new { Exists = exists, RequestedId = aaa };
 
-            
-            var model = await _repo.GetUserById(id);
-            if (model == null)
-                return NotFound();
-            var removeList = from exists in model.Roles
-                             join requested in dto on exists.RoleId equals requested into med
-                             from aaa in med.DefaultIfEmpty()
-                             select new { Exists= exists, RequestedId = aaa };
-            var toRemove= removeList.Where(i => i.RequestedId == 0).Select(i=> { return new Action(() => _repo.RemoveUserRole(i.Exists)); });
-            var addList = from requested in dto
-                          join exists in model.Roles on requested equals exists.RoleId into med
-                          from aaa in med.DefaultIfEmpty()
-                          select new { Exists = aaa, RequestedId = requested };
-            var toAdd = addList.Where(i => i.Exists == null)
-                .Select(i => { 
-                    return new Action(() => _repo.SetUserRole(new UserRole { RoleId = i.RequestedId,UserId=id }));
-                });
-            foreach(var act in toRemove)
-                act.Invoke();
-            foreach (var act in toAdd)
-                act.Invoke();
-            await _repo.SaveChanges();
-            _logger.LogInformation("UserRoles saved");
-            return NoContent();
+                //Makes collection of delegates removes redundant role links
+                var toRemove = removeList.Where(i => i.RequestedId == 0).Select(i => { return new Action(() => _repo.RemoveUserRole(i.Exists)); });
+
+                var addList = from requested in dto
+                              join exists in model.Roles on requested equals exists.RoleId into med
+                              from aaa in med.DefaultIfEmpty()
+                              select new { Exists = aaa, RequestedId = requested };
+
+                //Makes collection of delegates adds new role links
+                var toAdd = addList.Where(i => i.Exists == null)
+                    .Select(i =>
+                    {
+                        return new Action(() => _repo.SetUserRole(new UserRole { RoleId = i.RequestedId, UserId = id }));
+                    });
+                //Invokes delegates
+                foreach (var act in toRemove)
+                    act.Invoke();
+                foreach (var act in toAdd)
+                    act.Invoke();
+                await _repo.SaveChanges();
+                _logger.LogInformation("UserRoles saved");
+                return NoContent();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                _logger.LogError(ex,$"error in {nameof(PutRoles)}");
+                _logger.LogError(ex, $"error in {nameof(PutRoles)}");
                 return StatusCode(500);
             }
         }

@@ -4,10 +4,10 @@
       <div class="error-message">
         <p v-show="!success">Error sanding data to server,please, try later. Message:{{error_message}} <input type="button" value="x" v-on:click="clean" /> </p>
       </div>
-      <div class="item__title" v-model="user">User id:{{user.id}}, login:{{user.login}}</div>
-      <input v-show="!edit_mode" class="item_button" type="button" value="Delete" v-on:click="remove_user"  :disabled="isNew"/>
-      <input v-show="!edit_mode" class="item_button" type="button" value="Edit" v-on:click="edit" />
-      <input v-show="!roles_edit_mode" class="item_button" type="button" value="Roles" v-on:click="roles_edit"  :disabled="isNew"/>
+      <div class="item__title" v-model="user"><p>User id:{{user.id}}, login:{{user.login}}</p></div>
+      <input class="del_button" type="button" v-on:click="remove_user" src="../assets/criss-cross.png" value="" :disabled="isNew"/>
+      <input v-show="!edit_mode" class="item_button" type="button" value="" v-on:click="edit" />
+      <input v-show="!roles_edit_mode" class="role_button" type="button" value="" v-on:click="roles_edit"  :disabled="isNew"/>
     </div>
     <div>
       <form v-show="roles_edit_mode" class="item__form" @submit.prevent="submit_roles">
@@ -27,25 +27,30 @@
         </fieldset>
       </form>
       <form v-show="edit_mode" class="item__form" @submit.prevent="submit">
-        <div class="error-message">
-          <p v-show="!valid">Please enter a valid email address.</p>
-          <p v-show="!success">Error sanding data to server,please, try later. Message:{{error_message}} </p>
-        </div>
+        
         <fieldset>
+          <div class="error-message">
+            <p v-show="!valid">Please enter a valid email address.</p>
+            <p v-show="!success">Error sanding data to server,please, try later. Message:{{error_message}} </p>
+          </div>
           <!--<legend>User id:{{user.id}}, login:{{user.login}}</legend>-->
-          <div>
+          <div class="input_field">
             <label class="label" for="name">Name</label>
             <input type="text" name="name" id="name" required="" v-model="user.name">
           </div>
-          <div v-show="isNew">
+          <div v-show="isNew"  class="input_field">
             <label class="label" for="login">Login</label>
             <input type="text" name="login" id="login" required="" v-model="user.login">
           </div>
-          <div>
+          <div class="input_field">
+            <label class="label" for="password">Password</label>
+            <input type="password" name="password" id="password" required="" v-model="user.password">
+          </div>
+          <div  class="input_field">
             <label class="label" for="email">Email</label>
             <input type="text" name="email" id="email" required="" v-model="user.email">
           </div>
-          <div>
+          <div  class="input_field">
             <input type="submit" value="Save">
             <input type="button" value="Cancel" v-on:click="edit">
           </div>
@@ -65,7 +70,7 @@
     data() {
       return {
         JWTToken: null,
-        user: { name: '', login: '', id: 0 },
+        user: { name: '', login: '', id: this.user_id },
         valid: true,
         success: true,
         error_message:null,
@@ -79,7 +84,7 @@
     },
     computed: {
       isNew: function () {
-        return this.user_id===0;
+        return this.user.id===0;
       },
      },
     methods: {
@@ -117,6 +122,8 @@
         this.roles_edit_mode = !this.roles_edit_mode;
       },
       submit: function () {
+        if (!this.valid)
+          return;
         //this.user.roles = this.selectedRoles;
         if (this.user_id > 0) {
           axios.put(this.endpoint + this.user_id, this.user,
@@ -124,12 +131,14 @@
             .then(() => {
               console.log('user saved');
               this.success = true;
+              this.$emit('refresh', this.user.id);
               this.edit();
             })
             .catch(err => {
               console.log(err);
               this.error_message = err;
               this.success = false;
+              this.$emit('refresh', this.user.id);
             })
         }
         else {
@@ -139,17 +148,20 @@
               console.log('user created');
               this.success = true;
               this.user = response.data;
-              //this.user_id = this.user.id;
-              console.log('user:' + this.user);
+            //  this.user_id = this.user.id;
+              console.log('user:' + this.user.name);
               console.log('user.id:' + this.user.id);
               this.edit();
+              this.$emit('refresh', this.user.id);
             })
             .catch(err => {
               console.log(err);
               this.error_message = err;
               this.success = false;
+              this.$emit('refresh', this.user.id);
             })
         }
+        
       },
       submit_roles: function () {
         var roles = [];
@@ -161,7 +173,7 @@
           .then(() => {
             console.log('user roles saved');
             this.success = true;
-            this.edit();
+            this.roles_edit_mode = false;
           })
           .catch(err => {
             console.log(err);
@@ -229,41 +241,76 @@
     -moz-osx-font-smoothing: grayscale;
     border-radius: 0.25em;
     padding: 3px;
+    margin:4px;
+ 
   }
   .item_button {
-    margin: 2px 2px 2px 2px;
-    text-align: center;
-    border: groove;
+    background-image: url(../assets/edit.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    background-size: contain;
+    cursor: pointer; /* make the cursor like hovering over an <a> element */
+    vertical-align: middle;
+    border: none;
   }
+  .del_button {
+    background-image: url(../assets/criss-cross.png);
+  }
+  .item_button {
+    background-image: url(../assets/edit.png);
+  }
+  .role_button {
+    background-image: url(../assets/role.png);
+  }
+
   .item__show {
     min-width: 500px;
     text-align: center;
     align-content: center;
-    float: left;
     background-color: antiquewhite;
     margin-bottom: 2px;
   }
+    .item__show input {
+      background-position: center;
+      background-repeat: no-repeat;
+      background-color: transparent;
+      background-size: contain;
+      cursor: pointer; /* make the cursor like hovering over an <a> element */
+      vertical-align: middle;
+      border: none;
+      width:25px;
+      height:20px;
+      margin:3px;
+    }
   .item__title {
     float: left;
     font-size: 17px;
     font-style: italic;
     font-weight: bold;
-    min-width:400px;
+    min-width: 400px;
   }
+
+  .item__title p {
+      margin:0px;
+  }
+
   .item__form {
     min-width: 500px;
-    text-align: center;
+    text-align: left;
     align-content: center;
-    
-    background-color: white;
+    background-color: antiquewhite;
     margin-bottom: 2px;
   }
   li {
     list-style-type: none;
   }
-
   ul {
     margin-left: 0; 
     padding-left: 0;
+  }
+  .input_field {
+    width: 50%;
+    margin: 10px;
   }
 </style>

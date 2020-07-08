@@ -47,11 +47,11 @@
         })
           .then(resp => {
             const token = resp.data.access_token;
-            const user = resp.data.username;
+            this.username = resp.data.username;
             $cookies.set('user-token', token); // store the token in localstorage
-            $cookies.set('user-login', user);
+            $cookies.set('user-login', this.username );
             $cookies.set('isAuthenticated', true);
-            console.log('user:' + user + ' logged');
+            console.log('user:' + this.username + ' logged');
             this.AuthState = $cookies.get('isAuthenticated') == 'true';
           })
           .catch(err => {
@@ -74,7 +74,8 @@
       }
     },
     created() {
-      this.AuthState = $cookies.get('isAuthenticated')=='true';
+      this.AuthState = $cookies.get('isAuthenticated') == 'true';
+      this.username = $cookies.get('user-login');
     }
   }
 </script>

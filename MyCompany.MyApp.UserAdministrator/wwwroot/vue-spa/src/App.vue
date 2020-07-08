@@ -1,8 +1,6 @@
 <template>
-  <div id="app">
-    <header>
-      <h1>Vue.js SPA</h1>
-    </header>
+  <div class="content" id="app">
+    
     <main>
       <aside class="sidenav">
         <router-link to ="/">
@@ -16,6 +14,7 @@
         </router-link>
       </aside>
       <div class="content">
+
         <router-view></router-view>
       </div>
     </main>
@@ -37,47 +36,45 @@
 <style>
 main{
   height:100%;
+  width:100%;
+  margin:0px;
 }
 
   .sidenav {
     height: 100%;
-    width: 200px;
+    width: 10%;
     position: fixed;
     z-index: 1;
     top: 0;
     left: 0;
-    background-color: #111;
+    background-color:darkgrey;
     overflow-x: hidden;
     padding-top: 20px;
+    float:left;
   }
     .sidenav a {
       padding: 8px 8px 8px 32px;
       text-decoration: none;
       font-size: 25px;
-      color: #818181;
+      color: #212121;
       display: block;
       transition: 0.3s;
     }
 
       /* When you mouse over the navigation links, change their color */
       .sidenav a:hover {
-        color: #f1f1f1;
+        color: #f9f9f9;
       }
 
-    /* Position and style the close button (top right corner) */
-    .sidenav .closebtn {
-      position: absolute;
-      top: 0;
-      right: 25px;
-      font-size: 36px;
-      margin-left: 50px;
-    }
 
   /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
   .content {
-    transition: margin-left .5s;
-    padding: 20px;
-    margin-left: 200px;
+    transition: margin-left .9s;
+    background-color: burlywood;
+    height: 100%;
+    width: 80%;
+    float: left;
+    padding-left:7%;
   }
 
   /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
@@ -91,12 +88,9 @@ main{
       }
   }
 
- .app{
+ #app{
    height:100%;
- }
-
- .content{
-   float:left;
+   width:100%;
  }
 
 </style>
