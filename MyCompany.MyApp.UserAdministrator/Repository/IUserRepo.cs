@@ -14,5 +14,8 @@ namespace MyCompany.MyApp.UserAdministrator.Repository
         Task CreateUser(User user);
         void UpdateUser(User user);
         void DeleteUser(User user);
+        void SetUserRole(UserRole model);
+        void RemoveUserRole(UserRole model);
+
     }
 }

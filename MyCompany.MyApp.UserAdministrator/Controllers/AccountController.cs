@@ -79,7 +79,7 @@ namespace MyCompany.MyApp.UserAdministrator.Controllers
                     new Claim(ClaimsIdentity.DefaultNameClaimType, user.Login)
                 };
                 // Adds all roles
-                foreach (var role in user.UserRoles)
+                foreach (var role in user.Roles)
                     claims.Add(new Claim(ClaimsIdentity.DefaultRoleClaimType, role.Role.Name));
                 ClaimsIdentity claimsIdentity =
                 new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,

@@ -15,6 +15,6 @@ namespace MyCompany.MyApp.UserAdministrator.Models
         public string Email { get; set; }
         [MaxLength(255)]
         public string Password { get; set; }
-        public ICollection<UserRole> UserRoles { get; set; }
+        public ICollection<UserRole> Roles { get; set; }
     }
 }

@@ -27,7 +27,7 @@ namespace MyCompany.MyApp.UserAdministrator.Repository
 
         public async Task<User> GetUserById(int id)
         {
-            var res= await _context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefaultAsync(x => x.Id == id);
+            var res= await _context.Users.Include(u => u.Roles).ThenInclude(ur => ur.Role).FirstOrDefaultAsync(x => x.Id == id);
             return res;
                 //new User { Id = 0, Login = "MyLogin", Name = "MyName" };
         }
@@ -54,5 +54,17 @@ namespace MyCompany.MyApp.UserAdministrator.Repository
             _context.Users.Remove(user);
         }
         
+        public void SetUserRole(UserRole model)
+        {
+            if(model==null)
+                throw new ArgumentException(nameof(model));
+            _context.UserRoles.Add(model);
+        }
+        public void RemoveUserRole(UserRole model)
+        {
+            if (model == null)
+                throw new ArgumentException(nameof(model));
+            _context.UserRoles.Remove(model);
+        }
     }
 }

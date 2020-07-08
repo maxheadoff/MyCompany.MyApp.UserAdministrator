@@ -1,21 +1,38 @@
 <template>
   <div>
-    <div class="item__show" v-show="!edit_mode">
+    <div class="item__show">
       <div class="error-message">
         <p v-show="!success">Error sanding data to server,please, try later. Message:{{error_message}} <input type="button" value="x" v-on:click="clean" /> </p>
       </div>
       <div class="item__title" v-model="user">User id:{{user.id}}, login:{{user.login}}</div>
-      <input class="item_button" type="button" value="Delete" v-on:click="remove_user" />
-      <input class="item_button" type="button" value="Edit" v-on:click="edit" />
+      <input v-show="!edit_mode" class="item_button" type="button" value="Delete" v-on:click="remove_user"  :disabled="isNew"/>
+      <input v-show="!edit_mode" class="item_button" type="button" value="Edit" v-on:click="edit" />
+      <input v-show="!roles_edit_mode" class="item_button" type="button" value="Roles" v-on:click="roles_edit"  :disabled="isNew"/>
     </div>
     <div>
+      <form v-show="roles_edit_mode" class="item__form" @submit.prevent="submit_roles">
+        <fieldset>
+          <div>
+            <ul>
+              <li v-for="role in roles">
+                <input type="checkbox" :id="role.id" :value="role" v-model="user.roles">
+                <label :for="role.name">{{role.name}}</label>
+              </li>
+            </ul> 
+          </div>
+          <div>
+            <input type="submit" value="Save">
+            <input type="button" value="Cancel" v-on:click="roles_edit">
+          </div>
+        </fieldset>
+      </form>
       <form v-show="edit_mode" class="item__form" @submit.prevent="submit">
         <div class="error-message">
           <p v-show="!valid">Please enter a valid email address.</p>
           <p v-show="!success">Error sanding data to server,please, try later. Message:{{error_message}} </p>
         </div>
         <fieldset>
-          <legend>User id:{{user.id}}, login:{{user.login}}</legend>
+          <!--<legend>User id:{{user.id}}, login:{{user.login}}</legend>-->
           <div>
             <label class="label" for="name">Name</label>
             <input type="text" name="name" id="name" required="" v-model="user.name">
@@ -31,13 +48,6 @@
           <div>
             <input type="submit" value="Save">
             <input type="button" value="Cancel" v-on:click="edit">
-          </div>
-          <div>
-            <ul>
-              <li v-for="role in roles">
-                {{role.name}}
-              </li>
-            </ul>
           </div>
         </fieldset>
       </form>
@@ -60,21 +70,23 @@
         success: true,
         error_message:null,
         endpoint: 'https://localhost:44378/api/users/',
-        roles_endpoint:'https://localhost:44378/api/roles/',
+        roles_endpoint: 'https://localhost:44378/api/roles/',
         edit_mode: false,
-        roles: null
+        roles_edit_mode: false,
+        roles: null,
+        selectedRoles:[]
       }
     },
     computed: {
       isNew: function () {
         return this.user_id===0;
-      }
-    },
+      },
+     },
     methods: {
       getUser(id) {
         axios(this.endpoint + id, { headers: { "Authorization": `Bearer ${this.JWTToken}` } })
           .then(response => {
-            this.user = response.data
+            this.user = response.data;
           })
           .catch(error => {
             console.log(error)
@@ -101,7 +113,11 @@
       edit: function () {
         this.edit_mode = !this.edit_mode;
       },
+      roles_edit: function () {
+        this.roles_edit_mode = !this.roles_edit_mode;
+      },
       submit: function () {
+        //this.user.roles = this.selectedRoles;
         if (this.user_id > 0) {
           axios.put(this.endpoint + this.user_id, this.user,
             { headers: { "Authorization": `Bearer ${this.JWTToken}` } })
@@ -135,6 +151,24 @@
             })
         }
       },
+      submit_roles: function () {
+        var roles = [];
+        this.user.roles.forEach(item => {
+          roles.push(item.id);
+        });
+        axios.put(this.endpoint + this.user_id + '/roles/', roles,
+          { headers: { "Authorization": `Bearer ${this.JWTToken}` } })
+          .then(() => {
+            console.log('user roles saved');
+            this.success = true;
+            this.edit();
+          })
+          .catch(err => {
+            console.log(err);
+            this.error_message = err;
+            this.success = false;
+          })
+      },
       remove_user: function () {
         axios.delete(this.endpoint + this.user_id,
           { headers: { "Authorization": `Bearer ${this.JWTToken}` } })
@@ -167,11 +201,11 @@
       "user.email": function (value) {
         this.validate("email", value);
       },
-      'edit_mode': function (value) {
+      'roles_edit_mode': function (value) {
         if (value)
           this.getRoles();
-      }
-    }
+      },
+     }
   }
 </script>
 <style>
@@ -220,8 +254,16 @@
     min-width: 500px;
     text-align: center;
     align-content: center;
-    float: left;
+    
     background-color: white;
     margin-bottom: 2px;
+  }
+  li {
+    list-style-type: none;
+  }
+
+  ul {
+    margin-left: 0; 
+    padding-left: 0;
   }
 </style>
