@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using MyCompany.MyApp.UserAdministrator.Dtos;
 using MyCompany.MyApp.UserAdministrator.Models;
@@ -36,7 +37,7 @@ namespace MyCompany.MyApp.UserAdministrator.Controllers
         [Authorize()]
         public async Task<ActionResult<IEnumerable<UserReadDto>>> Get()
         {
-            _logger.LogTrace("get users");
+            _logger.LogTrace("attempt to get users");
             return Ok(_mapper.Map<IEnumerable<UserReadDto>>(await _repo.GetUsers()));
         }
 
@@ -48,6 +49,7 @@ namespace MyCompany.MyApp.UserAdministrator.Controllers
             var user = await _repo.GetUserById(id);
             if (user == null)
                 return NotFound();
+            _logger.LogTrace("attempt to get user,id=id");
             return Ok(_mapper.Map<UserReadDto>(user));
         }
 
@@ -56,10 +58,19 @@ namespace MyCompany.MyApp.UserAdministrator.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<UserReadDto>> Post([FromBody]UserCreateDto dto)
         {
-            var model = _mapper.Map<User>(dto);
-            await _repo.CreateUser(model);
-            await _repo.SaveChanges();
-            return CreatedAtAction(nameof(GetById), new { id = model.Id }, _mapper.Map<UserReadDto>(model));
+            User model = null;
+            try
+            {
+                model = _mapper.Map<User>(dto);
+                await _repo.CreateUser(model);
+                await _repo.SaveChanges();
+                return CreatedAtAction(nameof(GetById), new { id = model.Id }, _mapper.Map<UserReadDto>(model));
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, $"user, name:{dto?.Name} create operation cause exception");
+                throw ex;
+            }
         }
 
         // PUT api/<controller>/5
@@ -67,13 +78,23 @@ namespace MyCompany.MyApp.UserAdministrator.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> Put(int id, UserUpdateDto dto)
         {
-            var model = await _repo.GetUserById(id);
-            if (model == null)
-                return NotFound();
-            _mapper.Map(dto, model);
-            _repo.UpdateUser(model);
-            await _repo.SaveChanges();
-            return NoContent();
+            User model=null;
+            try
+            {
+                model = await _repo.GetUserById(id);
+                if (model == null)
+                    return NotFound();
+                _mapper.Map(dto, model);
+                _repo.UpdateUser(model);
+                await _repo.SaveChanges();
+                _logger.LogInformation($"User,name:{model.Name} updated");
+                return NoContent();
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, $"user:{model?.Name} update operation cause exception");
+                throw ex;
+            }
         }
 
         // PUT api/<controller>/5
@@ -133,12 +154,21 @@ namespace MyCompany.MyApp.UserAdministrator.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> Delete(int id) 
         {
-            var model = await _repo.GetUserById(id);
-            if (model == null)
-                return NotFound();
-            _repo.DeleteUser(model);
-            await _repo.SaveChanges();
-            return NoContent();
+            User model = null;
+            try
+            {
+                model = await _repo.GetUserById(id);
+                if (model == null)
+                    return NotFound();
+                _repo.DeleteUser(model);
+                await _repo.SaveChanges();
+                return NoContent();
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, $"user:{model?.Name} delete operation cause exception");
+                throw ex;
+            }
         }
     }
 }

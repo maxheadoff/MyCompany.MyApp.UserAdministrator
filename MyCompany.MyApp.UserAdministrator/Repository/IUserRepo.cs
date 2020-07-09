@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace MyCompany.MyApp.UserAdministrator.Repository
 {
+    /// <summary>
+    /// user/user properties operations
+    /// </summary>
     public interface IUserRepo
     {
         Task<bool> SaveChanges();

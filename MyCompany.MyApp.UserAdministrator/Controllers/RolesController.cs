@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MyCompany.MyApp.UserAdministrator.Dtos;
@@ -11,6 +8,9 @@ using MyCompany.MyApp.UserAdministrator.Repository;
 
 namespace MyCompany.MyApp.UserAdministrator.Controllers
 {
+    /// <summary>
+    /// roles rest-controller
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class RolesController : ControllerBase
@@ -30,7 +30,7 @@ namespace MyCompany.MyApp.UserAdministrator.Controllers
        // [Authorize()]
         public async Task<ActionResult<IEnumerable<RoleReadDto>>> Get()
         {
-            _logger.LogTrace("get users");
+            _logger.LogTrace("get roles");
             return Ok(_mapper.Map<IEnumerable<RoleReadDto>>(await _repo.GetRoles()));
         }
 

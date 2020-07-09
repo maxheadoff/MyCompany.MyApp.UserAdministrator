@@ -1,5 +1,8 @@
 <template>
   <div class="users" v-if="users">
+    <div class="error-message">
+      <p v-show="!success">Error receiving data from server,please, try later. Message:{{error_message}} <input type="button" value="x" v-on:click="clean" /> </p>
+    </div>
     <input class="new_button" type="button" value="" v-on:click="create_user" />
     <user-com :id="user.id"
               :key="user.id"
@@ -24,7 +27,9 @@
       return {
         users: [],
         endpoint: 'https://localhost:44378/api/users/',
-        JWTToken: null
+        JWTToken: null,
+        success: true,
+        error_message: null
       }
     },
     methods: {
@@ -38,6 +43,8 @@
           .catch(error => {
             console.log('---error:' + error);
             console.log(error);
+            this.success = false;
+              this.error_message = error;
           })
       },
       create_user: function () {
@@ -53,6 +60,9 @@
         var index = this.users.findIndex(item => item.id == id);
         this.$delete(this.users, index);
         //this.$forceUpdate();
+      },
+      clean: function () {
+        this.success = true;
       }
     },
     created() {
@@ -89,5 +99,11 @@
     height: 60px;
     margin: 8px;
   }
+    .new_button:hover {
+      border: 3px outset green;
+      border-radius: 25px;
+      font-weight: bold;
+      background-color: beige;
+    }
    
 </style>

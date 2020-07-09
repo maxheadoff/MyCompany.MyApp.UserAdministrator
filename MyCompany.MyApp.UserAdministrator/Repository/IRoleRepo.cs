@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace MyCompany.MyApp.UserAdministrator.Repository
 {
+    /// <summary>
+    /// roles operations
+    /// </summary>
     public interface IRoleRepo
     {
         Task<IEnumerable<Role>> GetRoles();

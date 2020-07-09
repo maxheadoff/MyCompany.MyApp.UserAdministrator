@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MyCompany.MyApp.UserAdministrator.Models
 {
-    public class User:ModelBase
+    public class User : ModelBase
     {
         [Required]
         [MaxLength(255)]

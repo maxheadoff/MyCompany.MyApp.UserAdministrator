@@ -1,18 +1,21 @@
 
 <template>
   <div>
-    <form  @submit.prevent="login" v-bind:class="{active: !AuthState ,hidden:AuthState }"  >
+    <div class="error-message">
+      <p v-show="!success">Error receiving data from server,please, try later. Message:{{error_message}} <input type="button" value="x" v-on:click="clean" /> </p>
+    </div>
+    <form @submit.prevent="login" v-bind:class="{active: !AuthState ,hidden:AuthState }">
       <h1>Sign in</h1>
       <label>User name</label>
       <input required v-model="username" type="text" placeholder="Snoopy" />
       <label>Password</label>
       <input required v-model="password" type="password" placeholder="Password" />
       <hr />
-      <button type="submit">Login</button>
+      <button type="submit" class="login_button" id="login_button"></button>
     </form>
     <div v-bind:class="{active: AuthState ,hidden:!AuthState }">
       <p>Hello,{{username}}</p>
-      <input type="button" v-on:click="logout"  value="logout" />
+      <input type="button" v-on:click="logout" value=""  class="login_button" id="logout_button"/>
     </div>
   </div>
 </template>
@@ -28,7 +31,9 @@
         AuthState: false,
         username: null,
         password: null,
-        endpoint: 'https://localhost:44378/api/token'
+        endpoint: 'https://localhost:44378/api/token',
+        success: true,
+        error_message: null
       }
     },
     computed: {
@@ -60,6 +65,8 @@
             $cookies.remove('user-login');
             $cookies.set('isAuthenticated', false);
             this.AuthState = $cookies.get('isAuthenticated') == 'true';
+            this.success = false;
+            this.error_message = err;
           })
         
         //this.$forceUpdate();
@@ -71,6 +78,9 @@
         $cookies.set('isAuthenticated', false);
         this.AuthState = $cookies.get('isAuthenticated') == 'true';
         this.$forceUpdate();
+      },
+      clean: function () {
+        this.success = true;
       }
     },
     created() {
@@ -84,6 +94,33 @@
     visibility: visible;
     color: red;
   }
+  .login_button {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    background-size: contain;
+    border: 1px dotted;
+    border-color: brown;
+    border-radius: 18px;
+    cursor: pointer; /* make the cursor like hovering over an <a> element */
+    vertical-align: middle;
+    width: 100px;
+    height: 60px;
+    margin: 8px;
+  }
+    .login_button:hover {
+      border: 3px outset green;
+      border-radius: 25px;
+      font-weight: bold;
+      background-color: beige;
+    }
+
+    #login_button {
+      background-image: url(../assets/login.png);
+    }
+    #logout_button {
+      background-image: url(../assets/logout.png);
+    }
 
   .hidden {
     visibility: hidden;

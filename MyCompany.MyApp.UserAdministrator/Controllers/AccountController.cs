@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -68,6 +69,7 @@ namespace MyCompany.MyApp.UserAdministrator.Controllers
 
         private async Task<ClaimsIdentity> GetIdentity(string username, string password)
         {
+
             var user =  (await _repo.GetUsers()).FirstOrDefault(x => x.Login == username && x.Password == password);
             if (user == null)
                 return null;
