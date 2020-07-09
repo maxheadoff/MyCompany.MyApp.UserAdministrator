@@ -1,3 +1,4 @@
+/*
 const loginRoutine = user => new Promise((resolve, reject) => {
   axios({ url: 'auth', data: user, method: 'POST' })
     .then(resp => {
@@ -10,4 +11,20 @@ const loginRoutine = user => new Promise((resolve, reject) => {
       reject(err)
     })
 })
+*/
+
+const loginRoutine = function (user, token) {
+  $cookies.set('user-token', token); // store the token in localstorage
+  $cookies.set('user-login', user);
+  $cookies.set('isAuthenticated', true);
+  console.log('user:' + user + ' logged');
+}
+
+const logoutroutine = () => {
+  $cookies.remove('user-token');
+  $cookies.remove('user-login');
+  $cookies.set('isAuthenticated', false);
+}
+
+module.exports = loginRoutine;
 

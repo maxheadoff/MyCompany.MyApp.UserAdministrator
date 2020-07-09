@@ -3,7 +3,7 @@
     <div class="error-message">
       <p v-show="!success">Error receiving data from server,please, try later. Message:{{error_message}} <input type="button" value="x" v-on:click="clean" /> </p>
     </div>
-    <input class="new_button" type="button" value="" v-on:click="create_user" />
+    <input v-show="AuthState" class="new_button" type="button" value="" v-on:click="create_user" />
     <user-com :id="user.id"
               :key="user.id"
               v-for="user in users"
@@ -39,10 +39,15 @@
             this.users = response.data;
             console.log('userlist received,count:' + this.users.length);
             this.$forceUpdate();
+            this.success = true;
           })
           .catch(error => {
             console.log('---error:' + error);
-            console.log(error);
+            if (error.response.status === 401) {
+              $cookies.remove('user-token'); // if the request fails, remove any possible user token if possible
+              $cookies.remove('user-login');
+              $cookies.set('isAuthenticated', false);
+            }
             this.success = false;
               this.error_message = error;
           })
@@ -67,6 +72,7 @@
     },
     created() {
       this.JWTToken = $cookies.get('user-token');
+      this.AuthState = $cookies.get('isAuthenticated') == 'true';
       this.getAllUsers();
     }
   }
