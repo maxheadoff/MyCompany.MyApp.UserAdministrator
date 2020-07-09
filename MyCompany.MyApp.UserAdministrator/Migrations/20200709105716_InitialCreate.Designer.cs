@@ -9,7 +9,7 @@ using MyCompany.MyApp.UserAdministrator.Context;
 namespace MyCompany.MyApp.UserAdministrator.Migrations
 {
     [DbContext(typeof(UserContext))]
-    [Migration("20200704074650_InitialCreate")]
+    [Migration("20200709105716_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,7 +34,26 @@ namespace MyCompany.MyApp.UserAdministrator.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasAlternateKey("Name");
+
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Guest"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Editor"
+                        });
                 });
 
             modelBuilder.Entity("MyCompany.MyApp.UserAdministrator.Models.User", b =>
@@ -64,7 +83,18 @@ namespace MyCompany.MyApp.UserAdministrator.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasAlternateKey("Login");
+
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Login = "Admin",
+                            Name = "Admin",
+                            Password = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("MyCompany.MyApp.UserAdministrator.Models.UserRole", b =>
@@ -87,6 +117,14 @@ namespace MyCompany.MyApp.UserAdministrator.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            RoleId = 1,
+                            UserId = 1
+                        });
                 });
 
             modelBuilder.Entity("MyCompany.MyApp.UserAdministrator.Models.UserRole", b =>
@@ -98,7 +136,7 @@ namespace MyCompany.MyApp.UserAdministrator.Migrations
                         .IsRequired();
 
                     b.HasOne("MyCompany.MyApp.UserAdministrator.Models.User", "User")
-                        .WithMany("UserRoles")
+                        .WithMany("Roles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

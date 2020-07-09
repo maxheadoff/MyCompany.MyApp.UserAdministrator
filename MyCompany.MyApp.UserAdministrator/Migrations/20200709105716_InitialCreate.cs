@@ -17,6 +17,7 @@ namespace MyCompany.MyApp.UserAdministrator.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Roles", x => x.Id);
+                    table.UniqueConstraint("AK_Roles_Name", x => x.Name);
                 });
 
             migrationBuilder.CreateTable(
@@ -33,6 +34,7 @@ namespace MyCompany.MyApp.UserAdministrator.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
+                    table.UniqueConstraint("AK_Users_Login", x => x.Login);
                 });
 
             migrationBuilder.CreateTable(
@@ -60,6 +62,26 @@ namespace MyCompany.MyApp.UserAdministrator.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "Roles",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Admin" },
+                    { 2, "Guest" },
+                    { 3, "Editor" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "Email", "Login", "Name", "Password" },
+                values: new object[] { 1, null, "Admin", "Admin", "Admin" });
+
+            migrationBuilder.InsertData(
+                table: "UserRoles",
+                columns: new[] { "Id", "RoleId", "UserId" },
+                values: new object[] { 1, 1, 1 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserRoles_RoleId",
